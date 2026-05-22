@@ -3,6 +3,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const activitySelect = document.getElementById("activity");
   const signupForm = document.getElementById("signup-form");
   const messageDiv = document.getElementById("message");
+  const escapeHtml = (value) =>
+    String(value)
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
 
   async function unregisterParticipant(activityName, email) {
     try {
@@ -53,20 +60,23 @@ document.addEventListener("DOMContentLoaded", () => {
         activityCard.className = "activity-card";
 
         const spotsLeft = details.max_participants - details.participants.length;
+        const safeName = escapeHtml(name);
         const participantsMarkup = details.participants.length
           ? `
             <ul class="participants-list">
               ${details.participants
                 .map(
-                  (participant) => `
+                  (participant) => {
+                    const safeParticipant = escapeHtml(participant);
+                    return `
                     <li class="participant-item">
-                      <span class="participant-email">${participant}</span>
+                      <span class="participant-email">${safeParticipant}</span>
                       <button
                         type="button"
                         class="participant-remove-button"
-                        data-activity="${name}"
-                        data-email="${participant}"
-                        aria-label="Remove ${participant} from ${name}"
+                        data-activity="${safeName}"
+                        data-email="${safeParticipant}"
+                        aria-label="Remove ${safeParticipant} from ${safeName}"
                         title="Remove participant"
                       >
                         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -74,7 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
                         </svg>
                       </button>
                     </li>
-                  `
+                  `;
+                  }
                 )
                 .join("")}
             </ul>
@@ -82,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
           : '<p class="participants-empty">No participants yet.</p>';
 
         activityCard.innerHTML = `
-          <h4>${name}</h4>
+          <h4>${safeName}</h4>
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
