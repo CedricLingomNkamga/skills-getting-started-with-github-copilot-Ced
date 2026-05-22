@@ -193,3 +193,20 @@ def test_unregister_returns_404_for_non_enrolled_student():
     # Assert
     assert response.status_code == 404
     assert response.json()["detail"] == "Student is not signed up for this activity"
+
+
+def test_unregister_normalizes_email_before_lookup():
+    # Arrange
+    activity_name = "Chess Club"
+    enrolled_email = app_module.activities[activity_name]["participants"][0]
+
+    # Act
+    response = client.delete(
+        f"/activities/{activity_name}/signup",
+        params={"email": f"  {enrolled_email.upper()}  "},
+    )
+
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == {"message": f"Unregistered {enrolled_email} from {activity_name}"}
+    assert enrolled_email not in app_module.activities[activity_name]["participants"]
