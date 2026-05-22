@@ -68,14 +68,16 @@ document.addEventListener("DOMContentLoaded", () => {
                 .map(
                   (participant) => {
                     const safeParticipant = escapeHtml(participant);
+                    const encodedName = encodeURIComponent(name);
+                    const encodedParticipant = encodeURIComponent(participant);
                     return `
                     <li class="participant-item">
                       <span class="participant-email">${safeParticipant}</span>
                       <button
                         type="button"
                         class="participant-remove-button"
-                        data-activity="${safeName}"
-                        data-email="${safeParticipant}"
+                        data-activity="${encodedName}"
+                        data-email="${encodedParticipant}"
                         aria-label="Remove ${safeParticipant} from ${safeName}"
                         title="Remove participant"
                       >
@@ -114,7 +116,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       activitiesList.querySelectorAll(".participant-remove-button").forEach((button) => {
         button.addEventListener("click", () => {
-          unregisterParticipant(button.dataset.activity, button.dataset.email);
+          unregisterParticipant(
+            decodeURIComponent(button.dataset.activity),
+            decodeURIComponent(button.dataset.email)
+          );
         });
       });
     } catch (error) {
