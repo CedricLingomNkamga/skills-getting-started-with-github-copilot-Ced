@@ -3,3 +3,4 @@ uvicorn
 httpx
 watchfiles
 pytest
+email-validator==2.3.0

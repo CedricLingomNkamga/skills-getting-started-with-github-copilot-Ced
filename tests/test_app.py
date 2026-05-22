@@ -112,6 +112,36 @@ def test_signup_returns_400_for_duplicate_email():
     assert response.json()["detail"] == "Student already signed up"
 
 
+def test_signup_normalizes_email_before_duplicate_check():
+    # Arrange
+    activity_name = "Chess Club"
+    existing_email = app_module.activities[activity_name]["participants"][0]
+
+    # Act
+    response = client.post(
+        f"/activities/{activity_name}/signup",
+        params={"email": f"  {existing_email.upper()}  "},
+    )
+
+    # Assert
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Student already signed up"
+
+
+def test_signup_returns_422_for_invalid_email():
+    # Arrange
+    activity_name = "Chess Club"
+
+    # Act
+    response = client.post(
+        f"/activities/{activity_name}/signup",
+        params={"email": "not-an-email"},
+    )
+
+    # Assert
+    assert response.status_code == 422
+
+
 # ---------------------------------------------------------------------------
 # DELETE /activities/{activity_name}/signup
 # ---------------------------------------------------------------------------
